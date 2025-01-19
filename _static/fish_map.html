@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>釣魚地圖</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <style>
+    #map {
+      height: 700px;
+    }
+    .control-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .control-buttons button {
+      margin: 5px;
+      padding: 10px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .control-buttons button.active {
+      background-color: #dc3545;
+    }
+  </style>
+</head>
+<body>
+  <h1>釣魚地圖</h1>
+  <div id="map"></div>
+  <div class="control-buttons" id="buttonContainer"></div>
+
+  <script>
+    // 地圖初始化
+    const map = L.map('map').setView([22.97996499492705, 120.16060291805357], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+
+      
+    // 定義多組成對點位與對應的popup資訊
+
+    const pointPairs = {
+      "1. 馬場北堤": {
+        coords: [[22.985164, 120.144643], [22.986276, 120.144672], [22.988471, 120.146925]],
+        popup_f: "【常見漁獲】：褐臭肚魚、黑棘鯛、石狗公",
+        popup_j: "【合適釣法】：磯釣、沉底、前打、岸拋",
+        popup: "【安全建議】：該釣場為消波塊地形，建議配戴防滑鞋和救生衣。由於堤防未設置路燈，故夜間作釣需配戴頭燈。",
+        image: "_static/fish_01.jpg"
+      },
+      "2. 馬場南堤": {
+        coords: [[22.983752, 120.144256], [22.983207, 120.146915], [22.984284, 120.149896]],
+        popup_f: "【常見漁獲】：平鯛、太平洋棘鯛、褐臭肚魚",
+        popup_j: "【合適釣法】：磯釣、沉底、前打、岸拋",
+        popup: "【安全建議】：該釣場為消波塊地形，建議配戴防滑鞋和救生衣。由於堤防未設置路燈，故夜間作釣需配戴頭燈。",
+        image: "_static/fish_02.jpg"
+      },
+      "3. 新北堤": {
+        coords: [[22.962492, 120.147496], [22.965327, 120.147294], [22.972186, 120.155122]],
+        popup_f: "【常見漁獲】：褐臭肚魚、伏氏眶棘鱸、火班笛鯛",
+        popup_j: "【合適釣法】：磯釣、沉底、前打、岸拋",
+        popup: "【安全建議】：該釣場有管理人員，需樣配戴包鞋以及救生衣才允許入場。須遵守開放時間，以免受警察開罰。",
+        image: "_static/fish_03.jpg"
+      },
+      "4. 保七南堤": {
+        coords: [[22.960507, 120.148838], [22.959794, 120.151610], [22.965627, 120.163707]],
+        popup_f: "【常見漁獲】：星班臭肚魚、太平洋棘鯛、平鯛",
+        popup_j: "【合適釣法】：磯釣、沉底、前打、岸拋",
+        popup: "【安全建議】：該釣場有管理人員，需樣配戴包鞋以及救生衣才允許入場。須遵守開放時間，以免受警察開罰。",
+        image: "_static/fish_04.jpg"
+      },
+      "5. 導流北堤": {
+        coords: [[22.987345, 120.148424], [22.987647, 120.148843]],
+        popup_f: "",
+        popup_j: "",
+        popup: "位於安平漁港出海口北側，船隻出入頻繁，被劃為禁釣區域。",
+        image: "_static/禁止釣魚.png"
+      },
+      "6. 導流南堤": {
+        coords: [[22.986583, 120.149095], [22.986906, 120.149441]],
+        popup_f: "",
+        popup_j: "",
+        popup: "位於安平漁港出海口南側，船隻出入頻繁，被劃為禁釣區域。",
+        image: "_static/禁止釣魚.png"
+      },
+      "7. 安平碼頭": {
+        coords: [[22.991959, 120.146902], [22.989959, 120.149192]],
+        popup_f: "",
+        popup_j: "",
+        popup: "港內區域規定一律禁釣。",
+        image: "_static/禁止釣魚.png"
+      },
+      "8. 紅船": {
+        coords: [[22.992602, 120.148789], [22.990889, 120.150748], [22.990900, 120.151823]],
+        popup_f: "",
+        popup_j: "",
+        popup: "港內區域規定一律禁釣。",
+        image: "_static/禁止釣魚.png"
+      },
+      "9. 三鯤鯓北岸碼頭(阿泰)": {
+        coords: [[22.988297, 120.152364], [22.987497, 120.154515], [22.988053, 120.155247], [22.987547, 120.156128]],
+        popup_f: "【常見漁獲】：太平洋棘鯛",
+        popup_j: "【合適釣法】：磯釣、沉底、前打",
+        popup: "【安全建議】：面朝港內，風浪較小容易作釣，但是要注意野狗非常多。",
+        image: "_static/fish_09.jpg"
+      },
+      "10. 德陽艦園區(軍艦旁)": {
+        coords: [[22.987933, 120.156940], [22.986079, 120.158351]],
+        popup_f: "【常見漁獲】：短棘鰏、青嘴龍占魚、黑棘鯛",
+        popup_j: "【合適釣法】：沉底",
+        popup: "【安全建議】：夜間有路燈，容易作釣。因為釣場位於人行道，故需注意行人。",
+        image: ""
+      },
+      "11. 二鯤鯓碼頭(漁光橋下)": {
+        coords: [[22.983993, 120.159430], [22.983637, 120.159584]],
+        popup_f: "【常見漁獲】：太平洋棘鯛",
+        popup_j: "【合適釣法】：磯釣、前打",
+        popup: "【安全建議】：該釣點路程複雜，可作釣位置不多，建議給有經驗者帶路。",
+        image: ""
+      },
+      "12. 白燈塔": {
+        coords: [[22.967097, 120.155451], [22.967426, 120.155457], [22.969927, 120.158387]],
+        popup_f: "",
+        popup_j: "",
+        popup: "位於安平商港航道範圍內，船隻出入頻繁，故禁止釣魚。",
+        image: "_static/禁止釣魚.png"
+      }
+    };
+
+    const layers = {}; // 用於儲存線條和標記的圖層
+    const buttonContainer = document.getElementById('buttonContainer'); // 按鈕容器
+
+    // 添加按鈕與切換功能
+    Object.keys(pointPairs).forEach(name => {
+      const data = pointPairs[name];
+
+      // 創建按鈕
+      const button = document.createElement('button');
+      button.textContent = name;
+      button.addEventListener('click', () => {
+        if (layers[name]) {
+          // 移除圖層
+          map.removeLayer(layers[name]);
+          delete layers[name];
+          button.classList.remove('active');
+        } else {
+          // 添加圖層
+          const line = L.polyline(data.coords, { color: 'blue', weight: 5 }).addTo(map);
+          const center = line.getBounds().getCenter(); // 計算中心點
+          const popupContent = `
+            <b>${name}</b><br>
+            ${data.popup_f}<br>
+            ${data.popup_j}<br>
+            ${data.popup}<br>
+            <img src="${data.image}" alt="${name}" style="width:300px; border:1px solid #ccc; border-radius:5px;">
+          `;
+          const marker = L.marker(center).bindPopup(popupContent).addTo(map);
+
+          // 將線條與標記存入圖層
+          layers[name] = L.layerGroup([line, marker]);
+          map.addLayer(layers[name]);
+          button.classList.add('active');
+        }
+      });
+      buttonContainer.appendChild(button);
+    });
+  </script>
+</body>
+</html>
